@@ -1,6 +1,6 @@
 ---
 title: "Model chosen and prediction_using for the point framing manuscript"
-author: "Qian Gu"
+author: ""
 date: '2017-09-10'
 output: html_document
 ---
