@@ -1,0 +1,716 @@
+---
+title: "Model chosen and prediction_using for the point framing manuscript"
+author: "Qian Gu"
+date: '2017-09-10'
+output: html_document
+---
+
+
+```{r}
+biomass=read.csv('biomass.csv',header = TRUE)
+rm(list=setdiff(ls(), "biomass"))
+str(biomass)
+biomass$year=as.factor(biomass$year)
+biomass$biomass=as.numeric(as.character(biomass$biomass))
+str(biomass)
+
+
+##################################################################################################################### (1) B.glandulosa
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,species=='B.gla')
+x=x[order(x$treatment),]
+biomass_new=c(sum(x$biomass[1]+x$biomass[2]),sum(x$biomass[3]+x$biomass[4]),sum(x$biomass[5]+x$biomass[6]),sum(x$biomass[7]+x$biomass[8]),sum(x$biomass[9]+x$biomass[10]),sum(x$biomass[11]+x$biomass[12]),sum(x$biomass[13]+x$biomass[14]),sum(x$biomass[15]+x$biomass[16]),sum(x$biomass[17]+x$biomass[18]),sum(x$biomass[19]+x$biomass[20]),sum(x$biomass[21]+x$biomass[22]),sum(x$biomass[23]+x$biomass[24]),sum(x$biomass[25]+x$biomass[26]),sum(x$biomass[27]+x$biomass[28]),sum(x$biomass[29]+x$biomass[30]),sum(x$biomass[31]+x$biomass[32]),sum(x$biomass[33]+x$biomass[34]),sum(x$biomass[35]+x$biomass[36]),sum(x$biomass[37]+x$biomass[38]),sum(x$biomass[39]+x$biomass[40]),sum(x$biomass[41]+x$biomass[42]),sum(x$biomass[43]+x$biomass[44]),sum(x$biomass[45]+x$biomass[46]),sum(x$biomass[47]+x$biomass[48]),sum(x$biomass[49]+x$biomass[50]),sum(x$biomass[51]+x$biomass[52]),sum(x$biomass[53]+x$biomass[54]),sum(x$biomass[55]+x$biomass[56]),sum(x$biomass[57]+x$biomass[58]),sum(x$biomass[59]+x$biomass[60]),sum(x$biomass[61]+x$biomass[62]),sum(x$biomass[63]+x$biomass[64]),sum(x$biomass[65]+x$biomass[66]),sum(x$biomass[67]+x$biomass[68]),sum(x$biomass[69]+x$biomass[70]),sum(x$biomass[71]+x$biomass[72]),sum(x$biomass[73]+x$biomass[74]),sum(x$biomass[75]+x$biomass[76]),sum(x$biomass[77]+x$biomass[78]),sum(x$biomass[79]+x$biomass[80]),sum(x$biomass[81]+x$biomass[82]),sum(x$biomass[83]+x$biomass[84]),sum(x$biomass[85]+x$biomass[86]),sum(x$biomass[87]+x$biomass[88]),sum(x$biomass[89]+x$biomass[90]),sum(x$biomass[91]+x$biomass[92]),sum(x$biomass[93]+x$biomass[94]),sum(x$biomass[95]+x$biomass[96]),sum(x$biomass[97]+x$biomass[98]),sum(x$biomass[99]+x$biomass[100]),sum(x$biomass[101]+x$biomass[102]),sum(x$biomass[103]+x$biomass[104]),sum(x$biomass[105]+x$biomass[106]),sum(x$biomass[107]+x$biomass[108]),sum(x$biomass[109]+x$biomass[110]),sum(x$biomass[111]+x$biomass[112]),sum(x$biomass[113]+x$biomass[114]),sum(x$biomass[115]+x$biomass[116]),sum(x$biomass[117]+x$biomass[118]),sum(x$biomass[119]+x$biomass[120]))
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+treatment_new=c(rep('W',30),rep('WC',30))
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+
+# Fig 4.1a in thesis.
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+birch_a = ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position="none")+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+scale_y_continuous(limits = c(0,45),breaks = c(0,5,10,15,20,25,30,35,40,45),expand = c(0, 0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+
+
+
+
+######################################################################################################################  (2) V.uliginosum
+#rm(list=setdiff(ls(), "biomass"))
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+
+x=subset(W_WC,species=='V.uli')
+x=x[order(x$treatment),]
+
+biomass_new=c(sum(x$biomass[1]+x$biomass[2]),sum(x$biomass[3]+x$biomass[4]),sum(x$biomass[5]+x$biomass[6]),sum(x$biomass[7]+x$biomass[8]),sum(x$biomass[9]+x$biomass[10]),sum(x$biomass[11]+x$biomass[12]),sum(x$biomass[13]+x$biomass[14]),sum(x$biomass[15]+x$biomass[16]),sum(x$biomass[17]+x$biomass[18]),sum(x$biomass[19]+x$biomass[20]),sum(x$biomass[21]+x$biomass[22]),sum(x$biomass[23]+x$biomass[24]),sum(x$biomass[25]+x$biomass[26]),sum(x$biomass[27]+x$biomass[28]),sum(x$biomass[29]+x$biomass[30]),sum(x$biomass[31]),sum(x$biomass[32]),0.333,sum(x$biomass[34]),0.333,sum(x$biomass[36]+x$biomass[37]),sum(x$biomass[38]+x$biomass[39]),sum(x$biomass[40]+x$biomass[41]),sum(x$biomass[42]+x$biomass[43]),sum(x$biomass[44]+x$biomass[45]),sum(x$biomass[46]+x$biomass[47]),sum(x$biomass[48]+x$biomass[49]),sum(x$biomass[50]+x$biomass[51]),sum(x$biomass[52]+x$biomass[53]),sum(x$biomass[54]+x$biomass[55]),sum(x$biomass[56]+x$biomass[57]),sum(x$biomass[58]+x$biomass[59]),sum(x$biomass[60]+x$biomass[61]),sum(x$biomass[62]+x$biomass[63]),sum(x$biomass[64]+x$biomass[65]),sum(x$biomass[66]+x$biomass[67]),sum(x$biomass[68]+x$biomass[69]),sum(x$biomass[70]+x$biomass[71]),sum(x$biomass[72]+x$biomass[73]),sum(x$biomass[74]+x$biomass[75]),sum(x$biomass[76]+x$biomass[77]),sum(x$biomass[78]+x$biomass[79]),sum(x$biomass[80]+x$biomass[81]),sum(x$biomass[82]+x$biomass[83]),sum(x$biomass[84]+x$biomass[85]),sum(x$biomass[86]+x$biomass[87]),sum(x$biomass[88]+x$biomass[89]),sum(x$biomass[90]+x$biomass[91]),sum(x$biomass[92]+x$biomass[93]),sum(x$biomass[94]+x$biomass[95]),sum(x$biomass[96]+x$biomass[97]),sum(x$biomass[98]+x$biomass[99]),sum(x$biomass[100]+x$biomass[101]),sum(x$biomass[102]+x$biomass[103]),sum(x$biomass[104]+x$biomass[105]),sum(x$biomass[106]+x$biomass[107]),sum(x$biomass[108]+x$biomass[109]),sum(x$biomass[110]+x$biomass[111]),sum(x$biomass[112]+x$biomass[113]),sum(x$biomass[114]+x$biomass[115]))
+
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+
+treatment_new=c(rep('W',30),rep('WC',30))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+
+### Fig 4.1b in thesis
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+uli_b = ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position="none")+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,7),breaks=c(0,1,2,3,4,5,6,7),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+
+
+
+
+
+
+
+#######################################################################################################################  (3) R.subarcticum
+# rm(list=setdiff(ls(), "biomass"))
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,species=='R.sub')
+x=x[order(x$treatment),]
+
+biomass_new=c(sum(x$biomass[1]+x$biomass[2]),sum(x$biomass[3]+x$biomass[4]),sum(x$biomass[5]+x$biomass[6]),sum(x$biomass[7]+x$biomass[8]),sum(x$biomass[9]+x$biomass[10]),sum(x$biomass[11]+x$biomass[12]),sum(x$biomass[13]+x$biomass[14]),sum(x$biomass[15]+x$biomass[16]),sum(x$biomass[17]+x$biomass[18]),sum(x$biomass[19]+x$biomass[20]),sum(x$biomass[21]+x$biomass[22]),sum(x$biomass[23]+x$biomass[24]),sum(x$biomass[25]+x$biomass[26]),sum(x$biomass[27]+x$biomass[28]),sum(x$biomass[29]+x$biomass[30]),sum(x$biomass[31]+x$biomass[32]),sum(x$biomass[33]+x$biomass[34]),sum(x$biomass[35]+x$biomass[36]),sum(x$biomass[37]+x$biomass[38]),sum(x$biomass[39]+x$biomass[40]),sum(x$biomass[41]+x$biomass[42]),sum(x$biomass[43]+x$biomass[44]),sum(x$biomass[45]+x$biomass[46]),sum(x$biomass[47]+x$biomass[48]),sum(x$biomass[49]+x$biomass[50]),sum(x$biomass[51]+x$biomass[52]),sum(x$biomass[53]+x$biomass[54]),sum(x$biomass[55]+x$biomass[56]),sum(x$biomass[57]+x$biomass[58]),sum(x$biomass[59]+x$biomass[60]),sum(x$biomass[61]+x$biomass[62]),sum(x$biomass[63]+x$biomass[64]),sum(x$biomass[65]+x$biomass[66]),sum(x$biomass[67]+x$biomass[68]),sum(x$biomass[69]+x$biomass[70]),sum(x$biomass[71]+x$biomass[72]),sum(x$biomass[73]+x$biomass[74]),sum(x$biomass[75]+x$biomass[76]),sum(x$biomass[77]+x$biomass[78]),sum(x$biomass[79]+x$biomass[80]),sum(x$biomass[81]+x$biomass[82]),sum(x$biomass[83]+x$biomass[84]),sum(x$biomass[85]+x$biomass[86]),sum(x$biomass[87]+x$biomass[88]),sum(x$biomass[89]+x$biomass[90]),sum(x$biomass[91]+x$biomass[92]),sum(x$biomass[93]+x$biomass[94]),sum(x$biomass[95]+x$biomass[96]),sum(x$biomass[97]+x$biomass[98]),sum(x$biomass[99]+x$biomass[100]),sum(x$biomass[101]+x$biomass[102]),sum(x$biomass[103]+x$biomass[104]),sum(x$biomass[105]+x$biomass[106]),sum(x$biomass[107]+x$biomass[108]),sum(x$biomass[109]+x$biomass[110]),sum(x$biomass[111]+x$biomass[112]),sum(x$biomass[113]+x$biomass[114]),sum(x$biomass[115]+x$biomass[116]),sum(x$biomass[117]+x$biomass[118]),sum(x$biomass[119]+x$biomass[120]))
+
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+
+treatment_new=c(rep('W',30),rep('WC',30))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+
+#### Fig 4.1c in thesis.
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+led_c = ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position="none")+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,210),breaks = c(0,30,60,90,120,150,180,210),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+
+
+
+
+
+#######################################################################################################################  (4) V.vitis-idaea 
+# rm(list=setdiff(ls(), "biomass"))
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,species=='V.vit')
+x=x[order(x$treatment),]
+
+biomass_new=c(sum(x$biomass[1]+x$biomass[2]),sum(x$biomass[3]+x$biomass[4]),sum(x$biomass[5]+x$biomass[6]),sum(x$biomass[7]+x$biomass[8]),sum(x$biomass[9]+x$biomass[10]),sum(x$biomass[11]+x$biomass[12]),sum(x$biomass[13]+x$biomass[14]),sum(x$biomass[15]+x$biomass[16]),sum(x$biomass[17]+x$biomass[18]),sum(x$biomass[19]+x$biomass[20]),sum(x$biomass[21]+x$biomass[22]),sum(x$biomass[23]+x$biomass[24]),sum(x$biomass[25]+x$biomass[26]),sum(x$biomass[27]+x$biomass[28]),sum(x$biomass[29]+x$biomass[30]),sum(x$biomass[31]+x$biomass[32]),sum(x$biomass[33]+x$biomass[34]),sum(x$biomass[35]+x$biomass[36]),sum(x$biomass[37]+x$biomass[38]),sum(x$biomass[39]+x$biomass[40]),sum(x$biomass[41]+x$biomass[42]),sum(x$biomass[43]+x$biomass[44]),sum(x$biomass[45]+x$biomass[46]),sum(x$biomass[47]+x$biomass[48]),sum(x$biomass[49]+x$biomass[50]),sum(x$biomass[51]+x$biomass[52]),sum(x$biomass[53]+x$biomass[54]),sum(x$biomass[55]+x$biomass[56]),sum(x$biomass[57]+x$biomass[58]),sum(x$biomass[59]+x$biomass[60]),sum(x$biomass[61]+x$biomass[62]),sum(x$biomass[63]+x$biomass[64]),sum(x$biomass[65]+x$biomass[66]),sum(x$biomass[67]+x$biomass[68]),sum(x$biomass[69]+x$biomass[70]),sum(x$biomass[71]+x$biomass[72]),sum(x$biomass[73]+x$biomass[74]),sum(x$biomass[75]+x$biomass[76]),sum(x$biomass[77]+x$biomass[78]),sum(x$biomass[79]+x$biomass[80]),sum(x$biomass[81]+x$biomass[82]),sum(x$biomass[83]+x$biomass[84]),sum(x$biomass[85]+x$biomass[86]),sum(x$biomass[87]+x$biomass[88]),sum(x$biomass[89]+x$biomass[90]),sum(x$biomass[91]+x$biomass[92]),sum(x$biomass[93]+x$biomass[94]),sum(x$biomass[95]+x$biomass[96]),sum(x$biomass[97]+x$biomass[98]),sum(x$biomass[99]+x$biomass[100]),sum(x$biomass[101]+x$biomass[102]),sum(x$biomass[103]+x$biomass[104]),sum(x$biomass[105]+x$biomass[106]),sum(x$biomass[107]+x$biomass[108]),sum(x$biomass[109]+x$biomass[110]),sum(x$biomass[111]+x$biomass[112]),sum(x$biomass[113]+x$biomass[114]),sum(x$biomass[115]+x$biomass[116]),sum(x$biomass[117]+x$biomass[118]),sum(x$biomass[119]+x$biomass[120]))
+
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+
+treatment_new=c(rep('W',30),rep('WC',30))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+
+#### Fig 4.1d in thesis.
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+vit_d= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position="none")+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,50),breaks = c(0,10,20,30,40,50),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+
+#######################################################################################################################  (5) A.polifolia 
+#rm(list=setdiff(ls(), "biomass"))
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,species=='A.pol')
+x=x[order(x$treatment),]
+
+biomass_new=c(sum(x$biomass[1]),sum(x$biomass[2]+x$biomass[3]),sum(x$biomass[4]),sum(x$biomass[5]+x$biomass[6]),sum(x$biomass[7]+x$biomass[8]),sum(x$biomass[9]),sum(x$biomass[10]),sum(x$biomass[11]),sum(x$biomass[12]+x$biomass[13]),sum(x$biomass[14]),sum(x$biomass[15]),sum(x$biomass[16]+x$biomass[17]),sum(x$biomass[18]),sum(x$biomass[19]),sum(x$biomass[20]+x$biomass[21]),sum(x$biomass[22]),sum(x$biomass[23]),sum(x$biomass[24]),sum(x$biomass[25]+x$biomass[26]),sum(x$biomass[27]),sum(x$biomass[28]),sum(x$biomass[29]+x$biomass[30]),sum(x$biomass[31]),sum(x$biomass[32]),sum(x$biomass[33]+x$biomass[34]),sum(x$biomass[35]),sum(x$biomass[36]),sum(x$biomass[37]),sum(x$biomass[38]+x$biomass[39]),sum(x$biomass[40]),sum(x$biomass[41]+x$biomass[42]),sum(x$biomass[43]+x$biomass[44]),sum(x$biomass[45]),sum(x$biomass[46]),sum(x$biomass[47]+x$biomass[48]),sum(x$biomass[49]),sum(x$biomass[50]),sum(x$biomass[51]),sum(x$biomass[52]),sum(x$biomass[53]),sum(x$biomass[54]),sum(x$biomass[55]),sum(x$biomass[56]),sum(x$biomass[57]),sum(x$biomass[58]),sum(x$biomass[59]),sum(x$biomass[60]),sum(x$biomass[61]),sum(x$biomass[62]),sum(x$biomass[63]),sum(x$biomass[64]),sum(x$biomass[65]),sum(x$biomass[66]+x$biomass[67]),sum(x$biomass[68]),sum(x$biomass[69]+x$biomass[70]),sum(x$biomass[71]),sum(x$biomass[72]),sum(x$biomass[73]),sum(x$biomass[74]),sum(x$biomass[75]+x$biomass[76]))
+
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+
+treatment_new=c(rep('W',30),rep('WC',30))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+#### Fig 4.1e in thesis.
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+
+pol_e= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position="none")+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,30),breaks = c(0,5,10,15,20,25,30),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+
+
+
+
+#######################################################################################################################  (6) E.vaginatum
+# rm(list=setdiff(ls(), "biomass"))
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,species=='E.vag')
+x=x[order(x$treatment),]
+biomass_new=x$biomass
+plot_new=c('W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','D1','D2','D3','D4','D5')
+treatment_new=c(rep('W',30),rep('WC',30))
+year_new=c(rep(2005,10),rep(2011,10),rep(2017,10),rep(2005,10),rep(2011,10),rep(2017,10))  
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+#str(x_new)
+#### Fig 4.1f in thesis.
+library(ggplot2)
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+vag_f= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position='none')+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,95),breaks = c(0,10,20,30,40,50,60,70,80,90),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+  
+
+
+
+
+
+
+######### Vascular community aboveground biomass.
+rm(list=setdiff(ls(), "biomass"))
+# Warming vs control treatment: 
+W_WC=subset(biomass,c(treatment=='WC'|treatment=='W'))
+#community=data.frame()
+community = data.frame(year=c(rep('2005',20),rep('2011',20),rep('2017',20)),treatment=c(rep('WC',10),rep('W',10),rep('WC',10),rep('W',10),rep('WC',10),rep('W',10)),plot=c('D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5'))
+## year 2005
+year2005_D1=sum(subset(W_WC,year==2005&plot=='D1'&treatment=='WC')$biomass)
+year2005_D2=sum(subset(W_WC,year==2005&plot=='D2'&treatment=='WC')$biomass)
+year2005_D3=sum(subset(W_WC,year==2005&plot=='D3'&treatment=='WC')$biomass)
+year2005_D4=sum(subset(W_WC,year==2005&plot=='D4'&treatment=='WC')$biomass)
+year2005_D5=sum(subset(W_WC,year==2005&plot=='D5'&treatment=='WC')$biomass)
+year2005_WC1=sum(subset(W_WC,year==2005&plot=='WC1'&treatment=='WC')$biomass)
+year2005_WC2=sum(subset(W_WC,year==2005&plot=='WC2'&treatment=='WC')$biomass)
+year2005_WC3=sum(subset(W_WC,year==2005&plot=='WC3'&treatment=='WC')$biomass)
+year2005_WC4=sum(subset(W_WC,year==2005&plot=='WC4'&treatment=='WC')$biomass)
+year2005_WC5=sum(subset(W_WC,year==2005&plot=='WC5'&treatment=='WC')$biomass)
+
+year2005_W1=sum(subset(W_WC,year==2005&plot=='W1'&treatment=='W')$biomass)
+year2005_W2=sum(subset(W_WC,year==2005&plot=='W2'&treatment=='W')$biomass)
+year2005_W3=sum(subset(W_WC,year==2005&plot=='W3'&treatment=='W')$biomass)
+year2005_W4=sum(subset(W_WC,year==2005&plot=='W4'&treatment=='W')$biomass)
+year2005_W5=sum(subset(W_WC,year==2005&plot=='W5'&treatment=='W')$biomass)
+year2005_WD1=sum(subset(W_WC,year==2005&plot=='WD1'&treatment=='W')$biomass)
+year2005_WD2=sum(subset(W_WC,year==2005&plot=='WD2'&treatment=='W')$biomass)
+year2005_WD3=sum(subset(W_WC,year==2005&plot=='WD3'&treatment=='W')$biomass)
+year2005_WD4=sum(subset(W_WC,year==2005&plot=='WD4'&treatment=='W')$biomass)
+year2005_WD5=sum(subset(W_WC,year==2005&plot=='WD5'&treatment=='W')$biomass)
+
+
+
+
+
+## year 2011
+year2011_D1=sum(subset(W_WC,year==2011&plot=='D1'&treatment=='WC')$biomass)
+year2011_D2=sum(subset(W_WC,year==2011&plot=='D2'&treatment=='WC')$biomass)
+year2011_D3=sum(subset(W_WC,year==2011&plot=='D3'&treatment=='WC')$biomass)
+year2011_D4=sum(subset(W_WC,year==2011&plot=='D4'&treatment=='WC')$biomass)
+year2011_D5=sum(subset(W_WC,year==2011&plot=='D5'&treatment=='WC')$biomass)
+year2011_WC1=sum(subset(W_WC,year==2011&plot=='WC1'&treatment=='WC')$biomass)
+year2011_WC2=sum(subset(W_WC,year==2011&plot=='WC2'&treatment=='WC')$biomass)
+year2011_WC3=sum(subset(W_WC,year==2011&plot=='WC3'&treatment=='WC')$biomass)
+year2011_WC4=sum(subset(W_WC,year==2011&plot=='WC4'&treatment=='WC')$biomass)
+year2011_WC5=sum(subset(W_WC,year==2011&plot=='WC5'&treatment=='WC')$biomass)
+
+year2011_W1=sum(subset(W_WC,year==2011&plot=='W1'&treatment=='W')$biomass)
+year2011_W2=sum(subset(W_WC,year==2011&plot=='W2'&treatment=='W')$biomass)
+year2011_W3=sum(subset(W_WC,year==2011&plot=='W3'&treatment=='W')$biomass)
+year2011_W4=sum(subset(W_WC,year==2011&plot=='W4'&treatment=='W')$biomass)
+year2011_W5=sum(subset(W_WC,year==2011&plot=='W5'&treatment=='W')$biomass)
+year2011_WD1=sum(subset(W_WC,year==2011&plot=='WD1'&treatment=='W')$biomass)
+year2011_WD2=sum(subset(W_WC,year==2011&plot=='WD2'&treatment=='W')$biomass)
+year2011_WD3=sum(na.omit(subset(W_WC,year==2011&plot=='WD3'&treatment=='W')$biomass))
+year2011_WD4=sum(subset(W_WC,year==2011&plot=='WD4'&treatment=='W')$biomass)
+year2011_WD5=sum(na.omit(subset(W_WC,year==2011&plot=='WD5'&treatment=='W')$biomass))
+
+
+
+
+#year2017
+year2017_D1=sum(subset(W_WC,year==2017&plot=='D1'&treatment=='WC')$biomass)
+year2017_D2=sum(subset(W_WC,year==2017&plot=='D2'&treatment=='WC')$biomass)
+year2017_D3=sum(subset(W_WC,year==2017&plot=='D3'&treatment=='WC')$biomass)
+year2017_D4=sum(subset(W_WC,year==2017&plot=='D4'&treatment=='WC')$biomass)
+year2017_D5=sum(subset(W_WC,year==2017&plot=='D5'&treatment=='WC')$biomass)
+year2017_WC1=sum(subset(W_WC,year==2017&plot=='WC1'&treatment=='WC')$biomass)
+year2017_WC2=sum(subset(W_WC,year==2017&plot=='WC2'&treatment=='WC')$biomass)
+year2017_WC3=sum(subset(W_WC,year==2017&plot=='WC3'&treatment=='WC')$biomass)
+year2017_WC4=sum(subset(W_WC,year==2017&plot=='WC4'&treatment=='WC')$biomass)
+year2017_WC5=sum(subset(W_WC,year==2017&plot=='WC5'&treatment=='WC')$biomass)
+
+year2017_W1=sum(subset(W_WC,year==2017&plot=='W1'&treatment=='W')$biomass)
+year2017_W2=sum(subset(W_WC,year==2017&plot=='W2'&treatment=='W')$biomass)
+year2017_W3=sum(subset(W_WC,year==2017&plot=='W3'&treatment=='W')$biomass)
+year2017_W4=sum(subset(W_WC,year==2017&plot=='W4'&treatment=='W')$biomass)
+year2017_W5=sum(subset(W_WC,year==2017&plot=='W5'&treatment=='W')$biomass)
+year2017_WD1=sum(subset(W_WC,year==2017&plot=='WD1'&treatment=='W')$biomass)
+year2017_WD2=sum(subset(W_WC,year==2017&plot=='WD2'&treatment=='W')$biomass)
+year2017_WD3=sum(subset(W_WC,year==2017&plot=='WD3'&treatment=='W')$biomass)
+year2017_WD4=sum(subset(W_WC,year==2017&plot=='WD4'&treatment=='W')$biomass)
+year2017_WD5=sum(subset(W_WC,year==2017&plot=='WD5'&treatment=='W')$biomass)
+
+community$biomass=c(year2005_D1,year2005_D2,year2005_D3,year2005_D4,year2005_D5,year2005_WC1,year2005_WC2,year2005_WC3,year2005_WC4,year2005_WC5,year2005_W1,year2005_W2,year2005_W3,year2005_W4,year2005_W5,year2005_WD1,year2005_WD2,year2005_WD3,year2005_WD4,year2005_WD5,year2011_D1,year2011_D2,year2011_D3,year2011_D4,year2011_D5,year2011_WC1,year2011_WC2,year2011_WC3,year2011_WC4,year2011_WC5,year2011_W1,year2011_W2,year2011_W3,year2011_W4,year2011_W5,year2011_WD1,year2011_WD2,year2011_WD3,year2011_WD4,year2011_WD5,year2017_D1,year2017_D2,year2017_D3,year2017_D4,year2017_D5,year2017_WC1,year2017_WC2,year2017_WC3,year2017_WC4,year2017_WC5,year2017_W1,year2017_W2,year2017_W3,year2017_W4,year2017_W5,year2017_WD1,year2017_WD2,year2017_WD3,year2017_WD4,year2017_WD5)
+                    
+str(community)                   
+x_new=community
+#### Fig 4.1g in thesis.
+library(ggplot2)
+x_new=x_new[order(x_new$treatment),]
+x_new$treatment=c(rep('Warming',30),rep('Control',30))
+names(x_new)[1]='Year'
+names(x_new)[2]='Treatment'
+df = with(x_new , aggregate(biomass, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+fig= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position='none')+
+   theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,350),breaks = c(0,50,100,150,200,250,300,350),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+  
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+lichens and mosses
+```{r}
+rm(list=ls())
+mosses_lichens=read.csv('mosses_lichens.csv',header = TRUE)
+mosses_lichens=subset(mosses_lichens,c(category=='lichen'|category=='moss'))
+library(varhandle)
+mosses_lichens$hits=unfactor(mosses_lichens$hits)   
+mosses_lichens=mosses_lichens[order(mosses_lichens$plot,mosses_lichens$spp,mosses_lichens$year),]
+#delete year 2008
+mosses_lichens=subset(mosses_lichens,year!=2008)
+mosses_lichens=subset(mosses_lichens,plot!='WD1_second')
+########## (2) Model for lichen (based on total hits, not individual lichen species)
+# (A) Using 2 years' data (2009,2011):
+Qian=read.csv('mosses_lichens_calibration.csv',header=TRUE)
+lichen=subset(Qian,Species=='lichen')
+lichen=subset(lichen,Note=='sum')
+# delete 0 values:
+lichen=subset(lichen,!(Hits_density==0&Biomass_density==0))
+lichen_biomass = lm(LN_biomass_density~LN_hits_density, data=lichen)
+summary(lichen_biomass)
+#plot(lichen_biomass) # good                  
+lichen_all=subset(mosses_lichens,category%in%'lichen')
+newdata=data.frame(LN_hits_density=log(lichen_all$hits+1))
+lichen_all$LN_biomass_density=predict(lichen_biomass,newdata)
+lichen_all$biomass=(exp(lichen_all$LN_biomass_density))-1  
+ ########## (2) Model for moss 
+# (A) Using 2 years' data (2009,2011):
+Qian=read.csv('mosses_lichens_calibration.csv',header=TRUE)
+moss=subset(Qian,Species=='moss')
+# delete 0 values:
+moss=subset(moss,!(Hits_density==0&Biomass_density==0))
+moss_biomass = lm(LN_biomass_density~LN_hits_density, data=moss)
+summary(moss_biomass)
+moss_all=subset(mosses_lichens,category%in%'moss')
+newdata=data.frame(LN_hits_density=log(moss_all$hits+1))
+moss_all$LN_biomass_density=predict(moss_biomass,newdata)
+moss_all$biomass=(exp(moss_all$LN_biomass_density))-1  
+lichen_moss=rbind(lichen_all,moss_all)
+
+
+
+
+
+
+
+
+###################################################################################################################  lichen
+rm(list=setdiff(ls(), "lichen_moss"))
+# Warming vs control treatment: 
+W_WC=subset(lichen_moss,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,category=='lichen')
+x=x[order(x$plot,x$year),]
+
+R1_05=subset(x,plot=='D1'&year==2005)
+R2_05=subset(x,plot=='D2'&year==2005)
+R3_05=subset(x,plot=='D3'&year==2005)
+R4_05=subset(x,plot=='D4'&year==2005)
+R5_05=subset(x,plot=='D5'&year==2005)
+
+R6_05=subset(x,plot=='WC1'&year==2005)
+R7_05=subset(x,plot=='WC2'&year==2005)
+R8_05=subset(x,plot=='WC3'&year==2005)
+R9_05=subset(x,plot=='WC4'&year==2005)
+R10_05=subset(x,plot=='WC5'&year==2005)
+
+R11_05=subset(x,plot=='W1'&year==2005)
+R12_05=subset(x,plot=='W2'&year==2005)
+R13_05=subset(x,plot=='W3'&year==2005)
+R14_05=subset(x,plot=='W4'&year==2005)
+R15_05=subset(x,plot=='W5'&year==2005)
+
+R16_05=subset(x,plot=='WD1'&year==2005)
+R17_05=subset(x,plot=='WD2'&year==2005)
+R18_05=subset(x,plot=='WD3'&year==2005)
+R19_05=subset(x,plot=='WD4'&year==2005)
+R20_05=subset(x,plot=='WD5'&year==2005)
+
+
+R1_11=subset(x,plot=='D1'&year==2011)
+R2_11=subset(x,plot=='D2'&year==2011)
+R3_11=subset(x,plot=='D3'&year==2011)
+R4_11=subset(x,plot=='D4'&year==2011)
+R5_11=subset(x,plot=='D5'&year==2011)
+
+R6_11=subset(x,plot=='WC1'&year==2011)
+R7_11=subset(x,plot=='WC2'&year==2011)
+R8_11=subset(x,plot=='WC3'&year==2011)
+R9_11=subset(x,plot=='WC4'&year==2011)
+R10_11=subset(x,plot=='WC5'&year==2011)
+
+R11_11=subset(x,plot=='W1'&year==2011)
+R12_11=subset(x,plot=='W2'&year==2011)
+R13_11=subset(x,plot=='W3'&year==2011)
+R14_11=subset(x,plot=='W4'&year==2011)
+R15_11=subset(x,plot=='W5'&year==2011)
+
+R16_11=subset(x,plot=='WD1'&year==2011)
+R17_11=subset(x,plot=='WD2'&year==2011)
+R18_11=subset(x,plot=='WD3'&year==2011)
+R19_11=subset(x,plot=='WD4'&year==2011)
+R20_11=subset(x,plot=='WD5'&year==2011)
+
+
+R1_17=subset(x,plot=='D1'&year==2017)
+R2_17=subset(x,plot=='D2'&year==2017)
+R3_17=subset(x,plot=='D3'&year==2017)
+R4_17=subset(x,plot=='D4'&year==2017)
+R5_17=subset(x,plot=='D5'&year==2017)
+
+R6_17=subset(x,plot=='WC1'&year==2017)
+R7_17=subset(x,plot=='WC2'&year==2017)
+R8_17=subset(x,plot=='WC3'&year==2017)
+R9_17=subset(x,plot=='WC4'&year==2017)
+R10_17=subset(x,plot=='WC5'&year==2017)
+
+R11_17=subset(x,plot=='W1'&year==2017)
+R12_17=subset(x,plot=='W2'&year==2017)
+R13_17=subset(x,plot=='W3'&year==2017)
+R14_17=subset(x,plot=='W4'&year==2017)
+R15_17=subset(x,plot=='W5'&year==2017)
+
+R16_17=subset(x,plot=='WD1'&year==2017)
+R17_17=subset(x,plot=='WD2'&year==2017)
+R18_17=subset(x,plot=='WD3'&year==2017)
+R19_17=subset(x,plot=='WD4'&year==2017)
+R20_17=subset(x,plot=='WD5'&year==2017)
+
+
+
+biomass_new=c(sum(R1_05$biomass),sum(R2_05$biomass),sum(R3_05$biomass),sum(R4_05$biomass),sum(R5_05$biomass),sum(R6_05$biomass),sum(R7_05$biomass),sum(R8_05$biomass),sum(R9_05$biomass),sum(R10_05$biomass),sum(R11_05$biomass),sum(R12_05$biomass),sum(R13_05$biomass),sum(R14_05$biomass),sum(R15_05$biomass),sum(R16_05$biomass),sum(R17_05$biomass),sum(R18_05$biomass),sum(R19_05$biomass),sum(R20_05$biomass),sum(R1_11$biomass),sum(R2_11$biomass),sum(R3_11$biomass),sum(R4_11$biomass),sum(R5_11$biomass), sum(R6_11$biomass),sum(R7_11$biomass),sum(R8_11$biomass),sum(R9_11$biomass),sum(R10_11$biomass),sum(R11_11$biomass),sum(R12_11$biomass),sum(R13_11$biomass),sum(R14_11$biomass),sum(R15_11$biomass),sum(R16_11$biomass),sum(R17_11$biomass),sum(R18_11$biomass),sum(R19_11$biomass),sum(R20_11$biomass),sum(R1_17$biomass),sum(R2_17$biomass),sum(R3_17$biomass),sum(R4_17$biomass),sum(R5_17$biomass),sum(R6_17$biomass),sum(R7_17$biomass),sum(R8_17$biomass),sum(R9_17$biomass),sum(R10_17$biomass),sum(R11_17$biomass),sum(R12_17$biomass),sum(R13_17$biomass),sum(R14_17$biomass),sum(R15_17$biomass),sum(R16_17$biomass),sum(R17_17$biomass),sum(R18_17$biomass),sum(R19_17$biomass),sum(R20_17$biomass))
+
+
+year_new=c(rep(2005,20),rep(2011,20),rep(2017,20))
+plot_new=c('D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5')
+
+treatment_new=c(rep('WC',10),rep('W',10),rep('WC',10),rep('W',10),rep('WC',10),rep('W',10))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+
+#### Fig 4.1h in thesis.
+library(ggplot2)
+x_new=x_new[order(x_new$treatment_new),]
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+fig= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position='none')+
+  theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,150),breaks = c(0,30,60,90,120,150),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+
+
+
+
+####################################################################################################################################### (2) moss
+rm(list=setdiff(ls(), "lichen_moss"))
+# Warming vs control treatment: 
+W_WC=subset(lichen_moss,c(treatment=='WC'|treatment=='W'))
+x=subset(W_WC,category=='moss')
+x=x[order(x$plot,x$year),]
+
+R1_05=subset(x,plot=='D1'&year==2005)
+R2_05=subset(x,plot=='D2'&year==2005)
+R3_05=subset(x,plot=='D3'&year==2005)
+R4_05=subset(x,plot=='D4'&year==2005)
+R5_05=subset(x,plot=='D5'&year==2005)
+
+R6_05=subset(x,plot=='WC1'&year==2005)
+R7_05=subset(x,plot=='WC2'&year==2005)
+R8_05=subset(x,plot=='WC3'&year==2005)
+R9_05=subset(x,plot=='WC4'&year==2005)
+R10_05=subset(x,plot=='WC5'&year==2005)
+
+R11_05=subset(x,plot=='W1'&year==2005)
+R12_05=subset(x,plot=='W2'&year==2005)
+R13_05=subset(x,plot=='W3'&year==2005)
+R14_05=subset(x,plot=='W4'&year==2005)
+R15_05=subset(x,plot=='W5'&year==2005)
+
+R16_05=subset(x,plot=='WD1'&year==2005)
+R17_05=subset(x,plot=='WD2'&year==2005)
+R18_05=subset(x,plot=='WD3'&year==2005)
+R19_05=subset(x,plot=='WD4'&year==2005)
+R20_05=subset(x,plot=='WD5'&year==2005)
+
+
+R1_11=subset(x,plot=='D1'&year==2011)
+R2_11=subset(x,plot=='D2'&year==2011)
+R3_11=subset(x,plot=='D3'&year==2011)
+R4_11=subset(x,plot=='D4'&year==2011)
+R5_11=subset(x,plot=='D5'&year==2011)
+
+R6_11=subset(x,plot=='WC1'&year==2011)
+R7_11=subset(x,plot=='WC2'&year==2011)
+R8_11=subset(x,plot=='WC3'&year==2011)
+R9_11=subset(x,plot=='WC4'&year==2011)
+R10_11=subset(x,plot=='WC5'&year==2011)
+
+R11_11=subset(x,plot=='W1'&year==2011)
+R12_11=subset(x,plot=='W2'&year==2011)
+R13_11=subset(x,plot=='W3'&year==2011)
+R14_11=subset(x,plot=='W4'&year==2011)
+R15_11=subset(x,plot=='W5'&year==2011)
+
+R16_11=subset(x,plot=='WD1'&year==2011)
+R17_11=subset(x,plot=='WD2'&year==2011)
+R18_11=subset(x,plot=='WD3'&year==2011)
+R19_11=subset(x,plot=='WD4'&year==2011)
+R20_11=subset(x,plot=='WD5'&year==2011)
+
+
+R1_17=subset(x,plot=='D1'&year==2017)
+R2_17=subset(x,plot=='D2'&year==2017)
+R3_17=subset(x,plot=='D3'&year==2017)
+R4_17=subset(x,plot=='D4'&year==2017)
+R5_17=subset(x,plot=='D5'&year==2017)
+
+R6_17=subset(x,plot=='WC1'&year==2017)
+R7_17=subset(x,plot=='WC2'&year==2017)
+R8_17=subset(x,plot=='WC3'&year==2017)
+R9_17=subset(x,plot=='WC4'&year==2017)
+R10_17=subset(x,plot=='WC5'&year==2017)
+
+R11_17=subset(x,plot=='W1'&year==2017)
+R12_17=subset(x,plot=='W2'&year==2017)
+R13_17=subset(x,plot=='W3'&year==2017)
+R14_17=subset(x,plot=='W4'&year==2017)
+R15_17=subset(x,plot=='W5'&year==2017)
+
+R16_17=subset(x,plot=='WD1'&year==2017)
+R17_17=subset(x,plot=='WD2'&year==2017)
+R18_17=subset(x,plot=='WD3'&year==2017)
+R19_17=subset(x,plot=='WD4'&year==2017)
+R20_17=subset(x,plot=='WD5'&year==2017)
+
+
+
+biomass_new=c(sum(R1_05$biomass),sum(R2_05$biomass),sum(R3_05$biomass),sum(R4_05$biomass),sum(R5_05$biomass),sum(R6_05$biomass),sum(R7_05$biomass),sum(R8_05$biomass),sum(R9_05$biomass),sum(R10_05$biomass),sum(R11_05$biomass),sum(R12_05$biomass),sum(R13_05$biomass),sum(R14_05$biomass),sum(R15_05$biomass),sum(R16_05$biomass),sum(R17_05$biomass),sum(R18_05$biomass),sum(R19_05$biomass),sum(R20_05$biomass),sum(R1_11$biomass),sum(R2_11$biomass),sum(R3_11$biomass),sum(R4_11$biomass),sum(R5_11$biomass), sum(R6_11$biomass),sum(R7_11$biomass),sum(R8_11$biomass),sum(R9_11$biomass),sum(R10_11$biomass),sum(R11_11$biomass),sum(R12_11$biomass),sum(R13_11$biomass),sum(R14_11$biomass),sum(R15_11$biomass),sum(R16_11$biomass),sum(R17_11$biomass),sum(R18_11$biomass),sum(R19_11$biomass),sum(R20_11$biomass),sum(R1_17$biomass),sum(R2_17$biomass),sum(R3_17$biomass),sum(R4_17$biomass),sum(R5_17$biomass),sum(R6_17$biomass),sum(R7_17$biomass),sum(R8_17$biomass),sum(R9_17$biomass),sum(R10_17$biomass),sum(R11_17$biomass),sum(R12_17$biomass),sum(R13_17$biomass),sum(R14_17$biomass),sum(R15_17$biomass),sum(R16_17$biomass),sum(R17_17$biomass),sum(R18_17$biomass),sum(R19_17$biomass),sum(R20_17$biomass))
+
+
+year_new=c(rep(2005,20),rep(2011,20),rep(2017,20))
+plot_new=c('D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5','D1','D2','D3','D4','D5','WC1','WC2','WC3','WC4','WC5','W1','W2','W3','W4','W5','WD1','WD2','WD3','WD4','WD5')
+
+treatment_new=c(rep('WC',10),rep('W',10),rep('WC',10),rep('W',10),rep('WC',10),rep('W',10))
+           
+x_new=cbind(plot_new,year_new,biomass_new,treatment_new)
+x_new=as.data.frame(x_new)
+x_new$biomass_new=as.numeric(biomass_new)
+
+#### Fig 4.1i in thesis.
+x_new=x_new[order(x_new$treatment_new),]
+x_new$treatment_new=c(rep('Warming',30),rep('Control',30))
+names(x_new)[2]='Year'
+names(x_new)[4]='Treatment'
+df = with(x_new , aggregate(biomass_new, list(Treatment=Treatment, Year=Year), mean))
+# Use standard deviation to represent error bars:
+df$sd = with(x_new, aggregate(biomass_new, list(Treatment=Treatment, Year=Year),function(x) sd(x)))[,3]
+fig= ggplot(df, aes(x=Year, y=x, group=Treatment))+ 
+  geom_line(aes(linetype=Treatment), size=2) + 
+     geom_point(aes(shape=Treatment), size=8) + 
+     geom_errorbar(aes(ymax=x+0.5*sd, ymin=x-0.5*sd,linetype=Treatment),width=.1,size=1)+
+  labs(x="", y =expression(paste('Biomass (g/m'^"2",')')), title= "")+
+  theme_bw()+ 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+  theme(legend.position='none')+
+  theme(axis.text=element_text(size=40,colour='black'))+
+  theme(axis.title=element_text(size=40))+
+  scale_y_continuous(limits = c(0,150),breaks = c(0,30,60,90,120,150),expand=c(0,0))+
+  theme(axis.ticks.length = unit(10,'pt'))
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
